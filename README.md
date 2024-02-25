@@ -2,6 +2,10 @@
 
 Documentation of this board is abysmal. The best source I coud find is [here](http://specs.buho.ch/MCU/ESP32-8048S070/) ([mirror](https://static.mah.priv.at/public/ESP32-8048S070/)).
 
+Some information can be found in the [Makerfabs Wiki](https://wiki.makerfabs.com/Sunton_ESP32_S3_5_7_inch_IPS_with_Touch.html).
+
+A [nice example](https://github.com/HarryVienna/Makerfabs-Sunton-ESP32-S3-7-Display-with-LovyanGFX-and-LVGL) is here, [blogpost is here](https://www.haraldkreuzer.net/en/news/getting-started-sunton-esp32-s3-7-inch-display-lovyangfx-and-lvgl).
+
 ## Summary:
 
 There are 2 I2C buses, 1 SPI bus and 1 I2S bus:
@@ -13,7 +17,7 @@ There are 2 I2C buses, 1 SPI bus and 1 I2S bus:
 
 The role of IO19 on P2 is unclear - seems to be SDA of the touch controller (?) - edit: confirmed with logic analyzer, so yes
 
-AFAICT there is no freeGPIO pin beyond these buses. 
+AFAICT there is no freeGPIO pin beyond these buses.
 
 By just using I2C1 (touch controller) one could disable I2C0 and use IO17 and IO18 as GPIO pins.
 
@@ -97,11 +101,9 @@ Seems the Card Detect switch (pin 9, CD) is not connected, although it goes into
 
 ![](assets/TF_card.png)
 
-
 I2S Sound pins
 
 The I2S amplifier is a [MAX98357](https://cdn-shop.adafruit.com/product-files/3006/MAX98357A-MAX98357B.pdf) and needs 3 IO pins as per diagram:
-
 
 | signal<br />bane | pin  | purpose                | remark                                     |
 | ---------------- | ---- | ---------------------- | ------------------------------------------ |
@@ -115,15 +117,29 @@ One could disable the speaker and remove R26 and R27 to free 2 GPIO pins
 
 GPIO0/IO0 is special-purpose (BOOT) and better be left alone
 
+It seems they patched up the hardware:
 
-As per this  [audio example](examples/Audio_test.ino), the pin allocation is different:
 
-> #define I2S_DOUT 17
+```
+Description of changes from V1.0 to V1.1:
+1. The IO corresponding to the original V1.0 of BCLK that controls audio is IO19, and V1.1 changes the IO corresponding to BCLK to IO0.
+2. V1.1 solves the problem that some computers fail to burn.
+```
 
-> #define I2S_BCLK 19
+## Backlight control via PWM
 
-> #define I2S_LRC 18
+is GPIO2.
 
-I cannot make sense of this as 17/18 would be the pins of I2C bus 0 (?)
+## Status of examples
 
-However, this other audio example  makes more sense: MCU/ESP32-8048S070/Demo/7_1_lvgl_music_gt911_7.0/lvgl_music_gt911_7.0, see [HAL.h ](examples/HAL.h)and [HAL.cpp](examples/HAL.cpp):
+SD card IO works.
+
+I2C0 works if sound is not activated.
+
+Sound never worked for me.
+
+I do not think connecing an SPI device will work due to a lack of chip select pins.
+
+## Verdict
+
+This is broken hardware, foregt about it,
